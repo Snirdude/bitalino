@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
@@ -164,7 +165,12 @@ final class BITalino implements MethodChannel.MethodCallHandler {
                                     communication, activity.getBaseContext());
                         }
                         startDataStream(dataStreamChannel);
-                        activity.registerReceiver(updateReceiver, updateIntentFilter());
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                activity.registerReceiver(updateReceiver, updateIntentFilter(), Context.RECEIVER_EXPORTED);
+                            }
+                        }
                         result.success(true);
                     }else{
                         throw new Exception("A valid bluetooth connection type must be provided.");

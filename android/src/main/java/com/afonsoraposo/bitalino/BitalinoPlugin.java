@@ -9,27 +9,31 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.BinaryMessenger;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.common.MethodChannel.Result;
 
 /** BitalinoPlugin */
-public class BitalinoPlugin implements FlutterPlugin, ActivityAware {
+public class BitalinoPlugin implements FlutterPlugin, ActivityAware, MethodChannel.MethodCallHandler {
     private @Nullable
     FlutterPluginBinding flutterPluginBinding;
     private @Nullable BITalino bitalino;
-
-    public static void registerWith(Registrar registrar) {
-        BitalinoPlugin plugin = new BitalinoPlugin();
-        plugin.startListening(registrar.activity(), registrar.messenger());
-    }
+    private MethodChannel channel;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
         this.flutterPluginBinding = binding;
+        channel = new MethodChannel(binding.getBinaryMessenger(), "bitalino");
+        channel.setMethodCallHandler(this);
     }
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
         this.flutterPluginBinding = null;
+        if (channel != null) {
+            channel.setMethodCallHandler(null);
+            channel = null;
+        }
     }
 
     @Override
@@ -59,5 +63,10 @@ public class BitalinoPlugin implements FlutterPlugin, ActivityAware {
 
     private void startListening(Activity activity, BinaryMessenger messenger) {
         bitalino = new BITalino(activity, messenger);
+    }
+
+    @Override
+    public void onMethodCall(MethodCall call, Result result) {
+        // Handle method calls from Dart here.
     }
 }
